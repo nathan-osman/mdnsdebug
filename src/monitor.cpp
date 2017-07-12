@@ -25,6 +25,8 @@
 #include <iomanip>
 #include <iostream>
 
+#include <QProcess>
+
 #include <qmdnsengine/dns.h>
 #include <qmdnsengine/message.h>
 #include <qmdnsengine/query.h>
@@ -33,11 +35,24 @@
 #include "monitor.h"
 
 Monitor::Monitor()
-    : mStart(QDateTime::currentDateTime())
+    : mColor(false),
+      mStart(QDateTime::currentDateTime())
 {
+#ifdef Q_OS_UNIX
+    QProcess proc;
+    proc.start("tput", QStringList{"colors"});
+    proc.waitForFinished(-1);
+    if (proc.readAll().trimmed().toInt() > 1) {
+        mColor = true;
+    }
+#endif
+
     connect(&mServer, &QMdnsEngine::Server::messageReceived, this, &Monitor::onMessageReceived);
 
     std::cout << "Initialization complete" << std::endl;
+    std::cout << "  " << mStart.toString().toStdString() << std::endl;
+    std::cout << "  color support? " << (mColor ? "yes" : "no") << std::endl;
+    std::cout << std::endl;
 }
 
 void Monitor::onMessageReceived(const QMdnsEngine::Message &message)
@@ -68,13 +83,11 @@ void Monitor::onMessageReceived(const QMdnsEngine::Message &message)
 
 std::string Monitor::color(const std::string &text) const
 {
-    // TODO: detect TERM environment variable to enable this
-
     std::string r;
 
-    r.append("\033[0;33m");
+    r.append(mColor ? "\033[0;33m" : "\"");
     r.append(text);
-    r.append("\033[0m");
+    r.append(mColor ? "\033[0m" : "\"");
 
     return r;
 }

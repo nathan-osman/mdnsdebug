@@ -58,6 +58,8 @@ private:
     void printQuery(const QMdnsEngine::Query &query) const;
     void printRecord(const QMdnsEngine::Record &record) const;
 
+    bool mColor;
+
     QDateTime mStart;
 
     QMdnsEngine::Server mServer;
