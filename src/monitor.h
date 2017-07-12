@@ -25,9 +25,12 @@
 #ifndef MONITOR_H
 #define MONITOR_H
 
+#include <string>
+
 #include <QDateTime>
 #include <QObject>
 
+#include <qmdnsengine/cache.h>
 #include <qmdnsengine/server.h>
 
 namespace QMdnsEngine
@@ -50,12 +53,15 @@ private Q_SLOTS:
 
 private:
 
+    std::string color(const std::string &text) const;
+
     void printQuery(const QMdnsEngine::Query &query) const;
     void printRecord(const QMdnsEngine::Record &record) const;
 
     QDateTime mStart;
 
     QMdnsEngine::Server mServer;
+    QMdnsEngine::Cache mCache;
 };
 
 #endif // MONITOR_H

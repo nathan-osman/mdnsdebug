@@ -24,7 +24,6 @@
 
 #include <iomanip>
 #include <iostream>
-#include <string>
 
 #include <qmdnsengine/dns.h>
 #include <qmdnsengine/message.h>
@@ -60,10 +59,24 @@ void Monitor::onMessageReceived(const QMdnsEngine::Message &message)
         std::cout << "  " << message.records().count() << " record(s):" << std::endl;
         foreach (const QMdnsEngine::Record &r, message.records()) {
             printRecord(r);
+            mCache.addRecord(r);
         }
     }
 
     std::cout << std::endl;
+}
+
+std::string Monitor::color(const std::string &text) const
+{
+    // TODO: detect TERM environment variable to enable this
+
+    std::string r;
+
+    r.append("\033[0;33m");
+    r.append(text);
+    r.append("\033[0m");
+
+    return r;
 }
 
 void Monitor::printQuery(const QMdnsEngine::Query &query) const
@@ -91,7 +104,7 @@ void Monitor::printQuery(const QMdnsEngine::Query &query) const
         return;
     }
 
-    std::cout << "\"" << query.name().constData() << "\"" << std::endl;
+    std::cout << color(query.name().toStdString()) << std::endl;
 }
 
 void Monitor::printRecord(const QMdnsEngine::Record &record) const
@@ -102,22 +115,22 @@ void Monitor::printRecord(const QMdnsEngine::Record &record) const
     switch (record.type()) {
     case QMdnsEngine::A:
     case QMdnsEngine::AAAA:
-        std::cout << "    - address for \"" << name << "\" is "
+        std::cout << "    - address for " << color(name) << " is "
                   << record.address().toString().toStdString() << std::endl;
         break;
     case QMdnsEngine::PTR:
-        std::cout << "    - \"" << target << "\" provides \"" << name
-                  << "\"" << std::endl;
+        std::cout << "    - " << color(target) << " provides "
+                  << color(name) << std::endl;
         break;
     case QMdnsEngine::SRV:
-        std::cout << "    - \"" << name << "\" is at \"" << target
-                  << "\" port " << record.port() << std::endl;
+        std::cout << "    - " << color(name) << " is at " << color(target)
+                  << " port " << color(std::to_string(record.port())) << std::endl;
         break;
     case QMdnsEngine::TXT:
-        std::cout << "    - \"" << name << "\" has the following data:" << std::endl;
+        std::cout << "    - " << color(name) << " has the following data:" << std::endl;
         for (auto i = record.attributes().constBegin(); i != record.attributes().constEnd(); ++i) {
-            std::cout << "        - " << i.key().toStdString() << ": "
-                      << i.value().toStdString() << std::endl;
+            std::cout << "        - " << color(i.key().toStdString()) << ": "
+                      << color(i.value().toStdString()) << std::endl;
         }
         break;
     default:
