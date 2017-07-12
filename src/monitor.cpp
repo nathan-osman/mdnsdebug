@@ -25,6 +25,10 @@
 #include <iomanip>
 #include <iostream>
 
+#ifdef Q_OS_WIN
+#  include <windows.h>
+#endif
+
 #include <QProcess>
 
 #include <qmdnsengine/dns.h>
@@ -45,6 +49,8 @@ Monitor::Monitor()
     if (proc.readAll().trimmed().toInt() > 1) {
         mColor = true;
     }
+#elif Q_OS_WIN
+    mColor = true;
 #endif
 
     connect(&mServer, &QMdnsEngine::Server::messageReceived, this, &Monitor::onMessageReceived);
@@ -81,15 +87,25 @@ void Monitor::onMessageReceived(const QMdnsEngine::Message &message)
     std::cout << std::endl;
 }
 
-std::string Monitor::color(const std::string &text) const
+void Monitor::printColor(const std::string &text) const
 {
-    std::string r;
+#if Q_OS_WIN
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+#endif
 
-    r.append(mColor ? "\033[0;33m" : "\"");
-    r.append(text);
-    r.append(mColor ? "\033[0m" : "\"");
+#ifdef Q_OS_UNIX
+    std::cout << (mColor ? "\033[0;33m" : "\"");
+#elif Q_OS_WIN
+    SetConsoleTextAttribute(hConsole, 14);
+#endif
 
-    return r;
+    std::cout << text;
+
+#ifdef Q_OS_UNIX
+    std::cout << (mColor ? "\033[0m" : "\"");
+#elif Q_OS_WIN
+    SetConsoleTextAttribute(hConsole, 0);
+#endif
 }
 
 void Monitor::printQuery(const QMdnsEngine::Query &query) const
@@ -117,7 +133,8 @@ void Monitor::printQuery(const QMdnsEngine::Query &query) const
         return;
     }
 
-    std::cout << color(query.name().toStdString()) << std::endl;
+    printColor(query.name().toStdString());
+    std::cout << std::endl;
 }
 
 void Monitor::printRecord(const QMdnsEngine::Record &record) const
@@ -128,22 +145,36 @@ void Monitor::printRecord(const QMdnsEngine::Record &record) const
     switch (record.type()) {
     case QMdnsEngine::A:
     case QMdnsEngine::AAAA:
-        std::cout << "    - address for " << color(name) << " is "
-                  << record.address().toString().toStdString() << std::endl;
+        std::cout << "    - address for ";
+        printColor(name);
+        std::cout << " is " << record.address().toString().toStdString() << std::endl;
         break;
     case QMdnsEngine::PTR:
-        std::cout << "    - " << color(target) << " provides "
-                  << color(name) << std::endl;
+        std::cout << "    - ";
+        printColor(target);
+        std::cout << " provides ";
+        printColor(name);
+        std::cout << std::endl;
         break;
     case QMdnsEngine::SRV:
-        std::cout << "    - " << color(name) << " is at " << color(target)
-                  << " port " << color(std::to_string(record.port())) << std::endl;
+        std::cout << "    - ";
+        printColor(name);
+        std::cout << " is at ";
+        printColor(target);
+        std::cout << " port ";
+        printColor(std::to_string(record.port()));
+        std::cout << std::endl;
         break;
     case QMdnsEngine::TXT:
-        std::cout << "    - " << color(name) << " has the following data:" << std::endl;
+        std::cout << "    - ";
+        printColor(name);
+        std::cout << " has the following data:" << std::endl;
         for (auto i = record.attributes().constBegin(); i != record.attributes().constEnd(); ++i) {
-            std::cout << "        - " << color(i.key().toStdString()) << ": "
-                      << color(i.value().toStdString()) << std::endl;
+            std::cout << "        - ";
+            printColor(i.key().toStdString());
+            std::cout << ": ";
+            printColor(i.value().toStdString());
+            std::cout << std::endl;
         }
         break;
     default:

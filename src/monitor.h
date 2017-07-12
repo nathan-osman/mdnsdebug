@@ -53,8 +53,7 @@ private Q_SLOTS:
 
 private:
 
-    std::string color(const std::string &text) const;
-
+    void printColor(const std::string &text) const;
     void printQuery(const QMdnsEngine::Query &query) const;
     void printRecord(const QMdnsEngine::Record &record) const;
 
