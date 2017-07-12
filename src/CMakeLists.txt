@@ -3,9 +3,9 @@ set(SRC
     monitor.cpp
 )
 
-add_executable(qmdnsdebug ${SRC})
-set_target_properties(qmdnsdebug PROPERTIES CXX_STANDARD 11)
+add_executable(mdnsdebug ${SRC})
+set_target_properties(mdnsdebug PROPERTIES CXX_STANDARD 11)
 
-target_link_libraries(qmdnsdebug qmdnsengine)
+target_link_libraries(mdnsdebug qmdnsengine)
 
-install(TARGETS qmdnsdebug RUNTIME DESTINATION bin)
+install(TARGETS mdnsdebug RUNTIME DESTINATION bin)
