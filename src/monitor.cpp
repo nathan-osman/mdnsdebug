@@ -25,7 +25,9 @@
 #include <iomanip>
 #include <iostream>
 
-#ifdef Q_OS_WIN
+#include <QtGlobal>
+
+#if defined(Q_OS_WIN)
 #  include <windows.h>
 #endif
 
@@ -42,14 +44,14 @@ Monitor::Monitor()
     : mColor(false),
       mStart(QDateTime::currentDateTime())
 {
-#ifdef Q_OS_UNIX
+#if defined(Q_OS_UNIX)
     QProcess proc;
     proc.start("tput", QStringList{"colors"});
     proc.waitForFinished(-1);
     if (proc.readAll().trimmed().toInt() > 1) {
         mColor = true;
     }
-#elif Q_OS_WIN
+#elif defined(Q_OS_WIN)
     mColor = true;
 #endif
 
@@ -89,22 +91,22 @@ void Monitor::onMessageReceived(const QMdnsEngine::Message &message)
 
 void Monitor::printColor(const std::string &text) const
 {
-#if Q_OS_WIN
+#if defined(Q_OS_WIN)
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 #endif
 
-#ifdef Q_OS_UNIX
+#if defined(Q_OS_UNIX)
     std::cout << (mColor ? "\033[0;33m" : "\"");
-#elif Q_OS_WIN
+#elif defined(Q_OS_WIN)
     SetConsoleTextAttribute(hConsole, 14);
 #endif
 
     std::cout << text;
 
-#ifdef Q_OS_UNIX
+#if defined(Q_OS_UNIX)
     std::cout << (mColor ? "\033[0m" : "\"");
-#elif Q_OS_WIN
-    SetConsoleTextAttribute(hConsole, 0);
+#elif defined(Q_OS_WIN)
+    SetConsoleTextAttribute(hConsole, 15);
 #endif
 }
 
