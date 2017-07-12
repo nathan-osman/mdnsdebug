@@ -24,6 +24,7 @@
 
 #include <iomanip>
 #include <iostream>
+#include <string>
 
 #include <qmdnsengine/dns.h>
 #include <qmdnsengine/message.h>
@@ -70,7 +71,8 @@ void Monitor::printQuery(const QMdnsEngine::Query &query) const
     switch (query.type()) {
     case QMdnsEngine::A:
     case QMdnsEngine::AAAA:
-        std::cout << "    - " << (query.type() == QMdnsEngine::A ? "IPv4" : "IPv6") << " address for ";
+        std::cout << "    - " << (query.type() == QMdnsEngine::A ? "IPv4" : "IPv6")
+                  << " address for ";
         break;
     case QMdnsEngine::ANY:
         std::cout << "    - probing for a record named ";
@@ -89,10 +91,37 @@ void Monitor::printQuery(const QMdnsEngine::Query &query) const
         return;
     }
 
-    std::cout << query.name().constData() << std::endl;
+    std::cout << "\"" << query.name().constData() << "\"" << std::endl;
 }
 
 void Monitor::printRecord(const QMdnsEngine::Record &record) const
 {
-    //...
+    std::string name = record.name().toStdString();
+    std::string target = record.target().toStdString();
+
+    switch (record.type()) {
+    case QMdnsEngine::A:
+    case QMdnsEngine::AAAA:
+        std::cout << "    - address for \"" << name << "\" is "
+                  << record.address().toString().toStdString() << std::endl;
+        break;
+    case QMdnsEngine::PTR:
+        std::cout << "    - \"" << target << "\" provides \"" << name
+                  << "\"" << std::endl;
+        break;
+    case QMdnsEngine::SRV:
+        std::cout << "    - \"" << name << "\" is at \"" << target
+                  << "\" port " << record.port() << std::endl;
+        break;
+    case QMdnsEngine::TXT:
+        std::cout << "    - \"" << name << "\" has the following data:" << std::endl;
+        for (auto i = record.attributes().constBegin(); i != record.attributes().constEnd(); ++i) {
+            std::cout << "        - " << i.key().toStdString() << ": "
+                      << i.value().toStdString() << std::endl;
+        }
+        break;
+    default:
+        std::cout << "    - [unknown]" << std::endl;
+        break;
+    }
 }
