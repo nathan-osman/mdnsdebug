@@ -11,3 +11,7 @@ Running on Windows 7:
 Running on macOS Sierra:
 
 ![macOS Terminal](https://cdn.rawgit.com/nathan-osman/mdnsdebug/d5c8075b/img/macos.png)
+
+Running on Linux (KDE):
+
+![Konsole](https://cdn.rawgit.com/nathan-osman/mdnsdebug/b7e5ce36/img/kde.png)
