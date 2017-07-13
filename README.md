@@ -10,4 +10,4 @@ Running on Windows 7:
 
 Running on macOS Sierra:
 
-![macOS Terminal](https://cdn.rawgit.com/nathan-osman/mdnsdebug/daa8b9b1/img/macos.png)
+![macOS Terminal](https://cdn.rawgit.com/nathan-osman/mdnsdebug/d5c8075b/img/macos.png)
