@@ -2,6 +2,12 @@
 
 This simple application uses the [QMdnsEngine](https://github.com/nitroshare/qmdnsengine) library to monitor mDNS traffic travelling through the network.
 
+### Features
+
+- cross-platform &mdash; runs on Windows, macOS, and Linux
+- easy-to-understand output describes what each message contains
+- provides intelligent colored output on all supported platforms
+
 ### Example Output
 
 Running on Windows 7:
